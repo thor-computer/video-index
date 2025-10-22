@@ -5,6 +5,9 @@ A Python-based tool for downloading YouTube channel videos, transcribing them wi
 ## Features
 
 - **Download entire YouTube channels**: Uses yt-dlp to download all videos from a YouTube channel or profile
+- **Incremental processing**: Processes one video at a time (download → transcribe → next)
+- **Smart skipping**: Automatically skips already downloaded videos and existing transcripts
+- **Re-run friendly**: Perfect for updating when new videos are posted - only processes new content
 - **Local transcription**: Uses OpenAI Whisper to transcribe videos locally (no API costs)
 - **Searchable transcripts**: Search across all transcripts and get timestamped YouTube URLs
 - **Simple interface**: Easy-to-use batch files for Windows
@@ -45,8 +48,16 @@ You can also specify the limit interactively when prompted during execution.
 The script will:
 1. Create a virtual environment
 2. Install all dependencies
-3. Download videos from the channel (all or limited to specified number)
-4. Transcribe all downloaded videos using Whisper
+3. Process each video one at a time:
+   - Download the video (skip if already exists)
+   - Transcribe the video (skip if transcript already exists)
+   - Move to next video
+
+**Incremental Processing Benefits**:
+- If a video is already downloaded, it won't be downloaded again
+- If a transcript already exists, it won't be transcribed again
+- Perfect for re-running on the same channel to catch new videos
+- Saves time and bandwidth on subsequent runs
 
 **Note**: This process can take a long time depending on:
 - Number of videos in the channel
@@ -100,6 +111,7 @@ python transcriber.py small
 video-index/
 ├── run.bat              # Main script to download and transcribe
 ├── search.bat           # Search script
+├── process_videos.py    # Main orchestrator (incremental processing)
 ├── downloader.py        # YouTube channel downloader
 ├── transcriber.py       # Whisper transcription module
 ├── searcher.py          # Transcript search module
@@ -113,7 +125,19 @@ video-index/
 
 You can also run the Python scripts directly:
 
-### Download videos:
+### Process videos (recommended - incremental):
+```bash
+# Process all videos from a channel
+python process_videos.py "https://www.youtube.com/@channelname"
+
+# Process only 5 most recent videos
+python process_videos.py "https://www.youtube.com/@channelname" 5
+
+# Process with a different Whisper model
+python process_videos.py "https://www.youtube.com/@channelname" 5 small
+```
+
+### Download videos only:
 ```bash
 # Download all videos
 python downloader.py "https://www.youtube.com/@channelname"
@@ -122,7 +146,7 @@ python downloader.py "https://www.youtube.com/@channelname"
 python downloader.py "https://www.youtube.com/@channelname" 5
 ```
 
-### Transcribe videos:
+### Transcribe videos only:
 ```bash
 python transcriber.py base
 ```

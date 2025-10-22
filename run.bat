@@ -22,29 +22,17 @@ pip install -r requirements.txt
 
 echo.
 echo ============================================
-echo STEP 1: Downloading Videos
-echo ============================================
-echo.
-python downloader.py %2 %1
-
-if errorlevel 1 (
-    echo [ERROR] Download failed
-    pause
-    exit /b 1
-)
-
-echo.
-echo ============================================
-echo STEP 2: Transcribing Videos
+echo Processing Videos (Download + Transcribe)
 echo ============================================
 echo.
 echo [INFO] Using Whisper 'base' model (good balance of speed and accuracy)
-echo [INFO] You can edit run.bat to use: tiny, base, small, medium, or large
+echo [INFO] Edit run.bat to change model: tiny, base, small, medium, or large
+echo [INFO] Processing one video at a time (download then transcribe)
 echo.
-python transcriber.py base
+python process_videos.py %2 %1 base
 
 if errorlevel 1 (
-    echo [ERROR] Transcription failed
+    echo [ERROR] Processing failed
     pause
     exit /b 1
 )
