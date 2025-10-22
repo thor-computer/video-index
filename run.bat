@@ -3,31 +3,9 @@ echo ============================================
 echo Video Index - Download and Transcribe
 echo ============================================
 echo.
-
-REM Check if parameter was provided
-if not "%~1"=="" (
-    set MAX_VIDEOS=%~1
-    echo [INFO] Limiting to %MAX_VIDEOS% most recent videos
-    echo.
-) else (
-    set MAX_VIDEOS=
-)
-
-REM Prompt for YouTube channel URL
-set /p CHANNEL_URL="Enter YouTube channel/profile URL: "
-
-if "%CHANNEL_URL%"=="" (
-    echo [ERROR] No URL provided
-    pause
-    exit /b 1
-)
-
-REM Optionally prompt for max videos if not provided as parameter
-if "%MAX_VIDEOS%"=="" (
-    echo.
-    echo [OPTIONAL] Enter max number of videos to download (leave empty for all):
-    set /p MAX_VIDEOS="Max videos (or press Enter for all): "
-)
+echo Usage: run.bat [max_videos] [channel_url]
+echo Example: run.bat 3 https://www.youtube.com/@channelname
+echo.
 
 echo.
 echo [SETUP] Creating virtual environment...
@@ -47,12 +25,7 @@ echo ============================================
 echo STEP 1: Downloading Videos
 echo ============================================
 echo.
-if "%MAX_VIDEOS%"=="" (
-    python downloader.py "%CHANNEL_URL%"
-) else (
-    echo [INFO] Downloading %MAX_VIDEOS% most recent videos
-    python downloader.py "%CHANNEL_URL%" %MAX_VIDEOS%
-)
+python downloader.py %2 %1
 
 if errorlevel 1 (
     echo [ERROR] Download failed
