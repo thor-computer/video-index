@@ -81,10 +81,16 @@ class ChannelDownloader:
         """
         output_path = self.output_dir / f"{video_id}.mp4"
         
-        # Skip if already downloaded
+        # Check if file exists
         if output_path.exists():
-            print(f"[SKIP] Video {video_id} already exists")
-            return True
+            # Check if it's an empty placeholder (already processed)
+            if output_path.stat().st_size == 0:
+                print(f"[SKIP] Video {video_id} already processed (placeholder exists)")
+                return True
+            else:
+                # File exists and has content - already downloaded
+                print(f"[SKIP] Video {video_id} already exists")
+                return True
         
         try:
             cmd = [

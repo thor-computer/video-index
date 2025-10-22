@@ -7,6 +7,7 @@ A Python-based tool for downloading YouTube channel videos, transcribing them wi
 - **Download entire YouTube channels**: Uses yt-dlp to download all videos from a YouTube channel or profile
 - **Incremental processing**: Processes one video at a time (download → transcribe → next)
 - **Smart skipping**: Automatically skips already downloaded videos and existing transcripts
+- **Space-saving**: Automatically replaces video files with empty placeholders after transcription to save disk space
 - **Re-run friendly**: Perfect for updating when new videos are posted - only processes new content
 - **Local transcription**: Uses OpenAI Whisper to transcribe videos locally (no API costs)
 - **Searchable transcripts**: Search across all transcripts and get timestamped YouTube URLs
@@ -49,8 +50,9 @@ The script will:
 1. Create a virtual environment
 2. Install all dependencies
 3. Process each video one at a time:
-   - Download the video (skip if already exists)
+   - Download the video (skip if already exists or placeholder found)
    - Transcribe the video (skip if transcript already exists)
+   - **Replace video with empty placeholder file** (saves disk space!)
    - Move to next video
 
 **Incremental Processing Benefits**:
@@ -58,6 +60,12 @@ The script will:
 - If a transcript already exists, it won't be transcribed again
 - Perfect for re-running on the same channel to catch new videos
 - Saves time and bandwidth on subsequent runs
+
+**Space-Saving Feature**:
+- After successful transcription, the video file is replaced with an empty placeholder
+- The empty file acts as a marker that the video has been processed
+- Only transcripts are kept (typically <1MB each vs 50-500MB per video)
+- You can process entire channels without running out of disk space!
 
 **Note**: This process can take a long time depending on:
 - Number of videos in the channel

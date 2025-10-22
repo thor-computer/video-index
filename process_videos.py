@@ -71,8 +71,15 @@ def process_channel(channel_url: str, max_videos: int = None, model_name: str = 
         
         # Check if video already downloaded
         video_path = downloader.output_dir / f"{video_id}.mp4"
+        video_is_placeholder = False
+        
         if video_path.exists():
-            print(f"[INFO] Video already downloaded: {video_id}")
+            # Check if it's an empty placeholder
+            if video_path.stat().st_size == 0:
+                print(f"[INFO] Empty placeholder exists (already processed)")
+                video_is_placeholder = True
+            else:
+                print(f"[INFO] Video already downloaded: {video_id}")
         else:
             # Download the video
             print(f"[DOWNLOAD] Downloading video...")
@@ -86,6 +93,13 @@ def process_channel(channel_url: str, max_videos: int = None, model_name: str = 
             
             print(f"[SUCCESS] Downloaded: {video_id}")
         
+        # Skip transcription if placeholder exists (already transcribed)
+        if video_is_placeholder:
+            print(f"[SKIP] Video already transcribed (placeholder indicates completion)")
+            skipped_count += 1
+            print()
+            continue
+        
         # Transcribe the video
         print(f"[TRANSCRIBE] Transcribing video...")
         result = transcriber.transcribe_video(video_path)
@@ -93,6 +107,22 @@ def process_channel(channel_url: str, max_videos: int = None, model_name: str = 
         if result:
             print(f"[SUCCESS] Transcribed: {video_id}")
             processed_count += 1
+            
+            # Replace video file with empty placeholder to save space
+            try:
+                # Get the file size before deletion
+                file_size = video_path.stat().st_size
+                file_size_mb = file_size / (1024 * 1024)
+                
+                # Delete the actual video file
+                video_path.unlink()
+                
+                # Create an empty placeholder file
+                video_path.touch()
+                
+                print(f"[CLEANUP] Replaced video with empty placeholder (freed {file_size_mb:.1f} MB)")
+            except Exception as e:
+                print(f"[WARNING] Could not replace video with placeholder: {str(e)}")
         else:
             print(f"[ERROR] Failed to transcribe {video_id}")
             failed_count += 1
