@@ -6,4 +6,6 @@ transcripts/
 *.mp4
 *.webm
 *.mkv
+*.m4a
+*.mp3
 .DS_Store

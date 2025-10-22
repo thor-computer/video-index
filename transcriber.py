@@ -84,20 +84,22 @@ class VideoTranscriber:
     
     def transcribe_all(self) -> List[str]:
         """
-        Transcribe all videos in the videos directory.
+        Transcribe all audio files in the videos directory.
         
         Returns:
             List of successfully transcribed video IDs
         """
-        video_files = list(self.videos_dir.glob("*.mp4"))
+        video_files = list(self.videos_dir.glob("*.m4a"))
+        video_files.extend(self.videos_dir.glob("*.mp3"))
+        video_files.extend(self.videos_dir.glob("*.mp4"))
         video_files.extend(self.videos_dir.glob("*.webm"))
         video_files.extend(self.videos_dir.glob("*.mkv"))
         
         if not video_files:
-            print(f"[ERROR] No video files found in {self.videos_dir}")
+            print(f"[ERROR] No audio/video files found in {self.videos_dir}")
             return []
         
-        print(f"\n[INFO] Found {len(video_files)} videos to transcribe")
+        print(f"\n[INFO] Found {len(video_files)} audio files to transcribe")
         
         transcribed = []
         for video_path in tqdm(video_files, desc="Transcribing videos"):
