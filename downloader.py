@@ -70,7 +70,7 @@ class ChannelDownloader:
     
     def download_video(self, video_url: str, video_id: str) -> bool:
         """
-        Download audio from a single video.
+        Download a single video.
         
         Args:
             video_url: URL of the video
@@ -79,19 +79,17 @@ class ChannelDownloader:
         Returns:
             True if successful, False otherwise
         """
-        output_path = self.output_dir / f"{video_id}.m4a"
+        output_path = self.output_dir / f"{video_id}.mp4"
         
         # Skip if already downloaded
         if output_path.exists():
-            print(f"[SKIP] Audio {video_id} already exists")
+            print(f"[SKIP] Video {video_id} already exists")
             return True
         
         try:
             cmd = [
                 sys.executable, "-m", "yt_dlp",
-                "-f", "bestaudio[ext=m4a]/bestaudio",
-                "-x",  # Extract audio
-                "--audio-format", "m4a",
+                "-f", "best[ext=mp4]/best",
                 "-o", str(output_path),
                 video_url
             ]
@@ -101,11 +99,11 @@ class ChannelDownloader:
             if result.returncode == 0 and output_path.exists():
                 return True
             else:
-                print(f"[ERROR] Failed to download audio {video_id}: {result.stderr}")
+                print(f"[ERROR] Failed to download {video_id}: {result.stderr}")
                 return False
                 
         except Exception as e:
-            print(f"[ERROR] Exception downloading audio {video_id}: {str(e)}")
+            print(f"[ERROR] Exception downloading {video_id}: {str(e)}")
             return False
     
     def download_all(self, channel_url: str, max_videos: int = None) -> List[str]:
@@ -131,9 +129,9 @@ class ChannelDownloader:
             print(f"[INFO] Limiting to {max_videos} most recent videos")
         
         downloaded = []
-        print(f"\n[INFO] Starting audio download of {len(videos)} videos...")
+        print(f"\n[INFO] Starting download of {len(videos)} videos...")
         
-        for video in tqdm(videos, desc="Downloading audio"):
+        for video in tqdm(videos, desc="Downloading videos"):
             video_id = video['id']
             video_url = video['url']
             title = video['title']
@@ -143,7 +141,7 @@ class ChannelDownloader:
             if self.download_video(video_url, video_id):
                 downloaded.append(video_id)
         
-        print(f"\n[SUCCESS] Downloaded {len(downloaded)}/{len(videos)} audio files")
+        print(f"\n[SUCCESS] Downloaded {len(downloaded)}/{len(videos)} videos")
         return downloaded
 
 
@@ -170,8 +168,8 @@ def main():
     downloader = ChannelDownloader()
     downloaded = downloader.download_all(channel_url, max_videos)
     
-    print(f"\n[COMPLETE] Audio files saved to: {downloader.output_dir.absolute()}")
-    print(f"[COMPLETE] Total audio files downloaded: {len(downloaded)}")
+    print(f"\n[COMPLETE] Downloaded videos saved to: {downloader.output_dir.absolute()}")
+    print(f"[COMPLETE] Total videos downloaded: {len(downloaded)}")
 
 
 if __name__ == "__main__":
