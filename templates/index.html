@@ -153,19 +153,30 @@
         }
         
         .video-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
+            padding: 15px;
             background: #272727;
             border-radius: 8px;
             margin-bottom: 10px;
         }
         
+        .video-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
         .video-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #f1f1f1;
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .video-title-loading {
+            color: #606060;
+            font-style: italic;
         }
         
         .video-count {
@@ -174,6 +185,26 @@
             background: #1a1a1a;
             padding: 4px 10px;
             border-radius: 12px;
+            white-space: nowrap;
+        }
+        
+        .video-metadata {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .video-id-display {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .video-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .video-results {
@@ -309,6 +340,7 @@
     <script>
         let searchResults = [];
         let currentResultIndex = -1;
+        let videoMetadataCache = {};
         
         // Handle Enter key in search input
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -366,7 +398,27 @@
             }
         }
         
-        function displayResults() {
+        async function fetchVideoMetadata(videoId) {
+            if (videoMetadataCache[videoId]) {
+                return videoMetadataCache[videoId];
+            }
+            
+            try {
+                const response = await fetch(`/api/video/${videoId}`);
+                const data = await response.json();
+                videoMetadataCache[videoId] = data;
+                return data;
+            } catch (error) {
+                console.error(`Error fetching metadata for ${videoId}:`, error);
+                return {
+                    video_id: videoId,
+                    title: `Video ${videoId}`,
+                    upload_date: 'Unknown'
+                };
+            }
+        }
+        
+        async function displayResults() {
             const resultsContainer = document.getElementById('resultsContainer');
             
             // Group results by video ID
@@ -378,15 +430,20 @@
                 groupedResults[result.video_id].push({ ...result, originalIndex: index });
             });
             
-            // Build HTML with video sections
+            // Build HTML with video sections (with loading state)
             let html = '';
             Object.keys(groupedResults).forEach(videoId => {
                 const videoResults = groupedResults[videoId];
                 html += `
                     <div class="video-section">
-                        <div class="video-header">
-                            <div class="video-title">📹 Video: ${videoId}</div>
-                            <div class="video-count">${videoResults.length} result${videoResults.length !== 1 ? 's' : ''}</div>
+                        <div class="video-header" id="video-header-${videoId}">
+                            <div class="video-header-top">
+                                <div class="video-title video-title-loading">Loading video info...</div>
+                                <div class="video-count">${videoResults.length} result${videoResults.length !== 1 ? 's' : ''}</div>
+                            </div>
+                            <div class="video-metadata">
+                                <div class="video-id-display">🎬 ${videoId}</div>
+                            </div>
                         </div>
                         <div class="video-results">
                             ${videoResults.map(result => `
@@ -401,6 +458,26 @@
             });
             
             resultsContainer.innerHTML = html;
+            
+            // Fetch metadata for each video
+            Object.keys(groupedResults).forEach(async (videoId) => {
+                const metadata = await fetchVideoMetadata(videoId);
+                const headerElement = document.getElementById(`video-header-${videoId}`);
+                const videoResults = groupedResults[videoId];
+                
+                if (headerElement) {
+                    headerElement.innerHTML = `
+                        <div class="video-header-top">
+                            <div class="video-title">${escapeHtml(metadata.title)}</div>
+                            <div class="video-count">${videoResults.length} result${videoResults.length !== 1 ? 's' : ''}</div>
+                        </div>
+                        <div class="video-metadata">
+                            <div class="video-id-display">🎬 ${videoId}</div>
+                            <div class="video-date">📅 ${metadata.upload_date}</div>
+                        </div>
+                    `;
+                }
+            });
         }
         
         function playResult(index) {
