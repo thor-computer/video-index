@@ -19,6 +19,5 @@ echo [INFO] Open http://localhost:8000 in your browser
 echo [INFO] Press Ctrl+C to stop
 echo.
 
-REM Start simple HTTP server in the docs directory
-cd docs
+REM Start simple HTTP server in the root directory
 python -m http.server 8000

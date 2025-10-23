@@ -18,7 +18,7 @@ python build_static.py
 
 This will:
 - Read all transcript JSON files from `transcripts/`
-- Combine them into `docs/transcripts.json`
+- Combine them into `transcripts.json` in the root directory
 - Display the bundle size and transcript count
 
 ## Step 2: Commit and Push to GitHub
@@ -49,7 +49,7 @@ git push -u origin main
 3. Scroll down to **Pages** section (left sidebar)
 4. Under **Source**, select:
    - Branch: `main`
-   - Folder: `/docs`
+   - Folder: `/ (root)`
 5. Click **Save**
 
 GitHub will build and deploy your site. It may take a few minutes.
@@ -68,7 +68,7 @@ Whenever you add new transcripts:
 1. Run `python build_static.py` to rebuild the bundle
 2. Commit and push the changes:
    ```bash
-   git add docs/transcripts.json
+   git add transcripts.json
    git commit -m "Update transcripts"
    git push
    ```

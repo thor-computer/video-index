@@ -58,9 +58,9 @@ def fetch_video_metadata(video_id):
 def build_static_site():
     """Bundle all transcripts into a single JSON file for static hosting."""
     transcripts_dir = Path("transcripts")
-    output_dir = Path("docs")  # GitHub Pages uses 'docs' folder
+    output_dir = Path(".")  # Output to root directory
     
-    # Create output directory
+    # Create output directory (already exists as root)
     output_dir.mkdir(exist_ok=True)
     
     # Load all transcripts
