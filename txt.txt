@@ -1,0 +1,4 @@
+- search should be on timestamp OR entire transcript
+- dropdown in GUI for filtering on channel names
+- transcripts stored in database so JSON doesnt need to be downloaded on static website
+- microservice that runs daily to download and transcribe new videos
