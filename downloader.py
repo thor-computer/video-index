@@ -95,7 +95,7 @@ class ChannelDownloader:
         try:
             cmd = [
                 sys.executable, "-m", "yt_dlp",
-                "-f", "worstvideo[ext=mp4]+bestaudio/worst[ext=mp4]+bestaudio/best",
+                "-f", "best[ext=mp4]/best",
                 "-o", str(output_path),
                 video_url
             ]
